@@ -1,8 +1,6 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 
-const USER_ID = 'demo-user';
-
 // Generate order number
 const generateOrderNumber = () => {
   const timestamp = Date.now().toString(36).toUpperCase();
@@ -12,10 +10,11 @@ const generateOrderNumber = () => {
 
 // @desc    Process checkout
 // @route   POST /api/checkout
-// @access  Public
+// @access  Private
 const processCheckout = async (req, res) => {
   try {
     const { customerName, customerEmail } = req.body;
+    const userId = req.user._id;
 
     // Validate input
     if (!customerName || !customerEmail) {
@@ -35,7 +34,7 @@ const processCheckout = async (req, res) => {
     }
 
     // Get cart
-    const cart = await Cart.findOne({ userId: USER_ID }).populate('items.product');
+    const cart = await Cart.findOne({ userId }).populate('items.product');
     
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({
@@ -59,6 +58,7 @@ const processCheckout = async (req, res) => {
 
     // Create order
     const order = await Order.create({
+      userId,
       orderNumber: generateOrderNumber(),
       customerName,
       customerEmail,
@@ -100,7 +100,7 @@ const processCheckout = async (req, res) => {
 
 // @desc    Get order by ID
 // @route   GET /api/checkout/:id
-// @access  Public
+// @access  Private
 const getOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate('items.productId');
@@ -109,6 +109,14 @@ const getOrder = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Order not found'
+      });
+    }
+
+    // Check if order belongs to user
+    if (order.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to view this order'
       });
     }
 
@@ -126,9 +134,9 @@ const getOrder = async (req, res) => {
   }
 };
 
-// @desc    Get all orders (for demo)
+// @desc    Get all orders (admin)
 // @route   GET /api/checkout
-// @access  Public
+// @access  Private/Admin
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find({}).sort({ createdAt: -1 }).populate('items.productId');
@@ -148,8 +156,33 @@ const getOrders = async (req, res) => {
   }
 };
 
+// @desc    Get current user's orders
+// @route   GET /api/checkout/myorders
+// @access  Private
+const getMyOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.user._id })
+      .sort({ createdAt: -1 })
+      .populate('items.productId');
+    
+    res.json({
+      success: true,
+      count: orders.length,
+      data: orders
+    });
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   processCheckout,
   getOrder,
-  getOrders
+  getOrders,
+  getMyOrders
 };

@@ -49,7 +49,37 @@ const getProduct = async (req, res) => {
   }
 };
 
+const createProduct = async (req, res) => {
+  try {
+    let products;
+
+    // If user sends an array, do bulk insert
+    if (Array.isArray(req.body)) {
+      products = await Product.insertMany(req.body);
+    } else {
+      // Otherwise, single product
+      products = await Product.create(req.body);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: Array.isArray(req.body)
+        ? `${products.length} products added successfully`
+        : 'Product created successfully',
+      data: products,
+    });
+  } catch (error) {
+    console.error('Error creating product(s):', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error',
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   getProducts,
-  getProduct
+  getProduct,
+ createProduct
 };
