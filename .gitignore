@@ -1,0 +1,40 @@
+# --- Common Node / JS ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Build outputs ---
+frontend/build/
+backend/dist/
+backend/out/
+coverage/
+
+# --- Environment variables ---
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# --- Logs ---
+logs/
+*.log
+
+# --- OS / Editor files ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# --- Tailwind / Cache ---
+*.css.map
+.cache/
+.parcel-cache/
+
+# --- Misc ---
+tmp/
+temp/
+*.bak
