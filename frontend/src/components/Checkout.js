@@ -8,34 +8,51 @@ const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // === CORRECTION 1: Use component state instead of Redux selectors ===
+  // === (Cart state remains unchanged) ===
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [cartLoading, setCartLoading] = useState(true);
   
-  const [formData, setFormData] = useState({
-    customerName: '',
-    customerEmail: ''
-  });
+  // === MODIFIED: Remove formData, add user state ===
+  const [user, setUser] = useState(null);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderData, setOrderData] = useState(null);
 
-  // === CORRECTION 2: Fetch cart data on component load ===
+  // === MODIFIED: Fetch cart AND user info on load ===
   useEffect(() => {
+    // 1. Get user info from localStorage first
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        setUser(JSON.parse(userInfo));
+      } else {
+        // If no user, redirect to login immediately
+        alert('You must be logged in to check out.');
+        navigate('/login');
+        return; // Stop execution
+      }
+    } catch (e) {
+      console.error('Failed to parse user info', e);
+      localStorage.removeItem('userInfo');
+      navigate('/login');
+      return; // Stop execution
+    }
+
+    // 2. If user exists, fetch their cart
     const fetchCart = async () => {
       try {
         setCartLoading(true);
         setError(null);
         
-        // Use the centralized api service
         const response = await api.get('/cart');
         
         if (response.data.success) {
           const cart = response.data.data;
           setCartItems(cart.items || []);
-          // Calculate total from the fetched items
+          
           const cartTotal = (cart.items || []).reduce((sum, item) => {
              const price = item.product?.price || 0;
              const quantity = item.quantity || 0;
@@ -46,6 +63,7 @@ const Checkout = () => {
       } catch (err) {
         console.error('Error fetching cart for checkout:', err);
         if (err.response?.status === 401) {
+          // This will be caught by the api interceptor, but good to have
           navigate('/login');
         } else {
           setError('Failed to load cart data. Please try again.');
@@ -59,34 +77,16 @@ const Checkout = () => {
   }, [navigate]);
 
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    setError('');
-  };
+  // === REMOVED: handleChange function is no longer needed ===
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    // Validation
-    if (!formData.customerName || !formData.customerEmail) {
-      setError('Please fill in all fields');
-      setLoading(false);
-      return;
-    }
+    // === REMOVED: All form validation ===
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.customerEmail)) {
-      setError('Please enter a valid email address');
-      setLoading(false);
-      return;
-    }
-
-    // === CORRECTION 3: Check component's state for cartItems ===
+    // === (Cart empty check remains unchanged) ===
     if (cartItems.length === 0) {
       setError('Your cart is empty');
       setLoading(false);
@@ -94,25 +94,21 @@ const Checkout = () => {
     }
 
     try {
-      // === CORRECTION 4: Use the centralized 'api' service ===
-      // The interceptor will automatically add the auth token
+      // === MODIFIED: Send an empty object. Backend uses token. ===
       const response = await api.post(
         '/checkout',
-        formData
+        {} // Send empty object
       );
 
-      // Clear Redux cart (good practice, though this component isn't using it)
+      // (Rest of the function remains unchanged)
       dispatch(clearCart());
-      // Also clear local component cart state
       setCartItems([]);
       setTotal(0);
 
-      // Show success
       setOrderComplete(true);
       setOrderData(response.data.data);
       setLoading(false);
 
-      // Redirect after 3 seconds
       setTimeout(() => {
         navigate('/orders');
       }, 3000);
@@ -210,7 +206,7 @@ const Checkout = () => {
     );
   }
 
-  if (cartLoading) {
+  if (cartLoading || !user) { // Show loading if cart OR user is loading
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -226,7 +222,6 @@ const Checkout = () => {
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto text-center">
-          {/* ... Empty cart message ... */}
            <div className="bg-gray-100 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
             <svg
               className="w-16 h-16 text-gray-400"
@@ -262,7 +257,7 @@ const Checkout = () => {
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Checkout Form */}
+        {/* Customer Info Display */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold mb-6">Customer Information</h2>
@@ -273,38 +268,25 @@ const Checkout = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            {/* === MODIFIED: Display user info instead of form === */}
+            <div className="space-y-4 mb-6 p-4 bg-gray-50 rounded-lg border">
               <div>
-                <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name *
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Checking out as
                 </label>
-                <input
-                  type="text"
-                  id="customerName"
-                  name="customerName"
-                  value={formData.customerName}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="John Doe"
-                />
+                <p className="text-lg font-semibold text-gray-900">{user.name}</p>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <p className="text-lg text-gray-900">{user.email}</p>
+              </div>
+            </div>
+            {/* === END MODIFICATION === */}
 
-              <div>
-                <label htmlFor="customerEmail" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  id="customerEmail"
-                  name="customerEmail"
-                  value={formData.customerEmail}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="john@example.com"
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* === REMOVED: Form inputs === */}
 
               <div className="pt-6 border-t">
                 <button
@@ -325,7 +307,7 @@ const Checkout = () => {
             <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
 
             <div className="space-y-4 mb-6">
-              {/* === CORRECTION 5: Iterate over component state 'cartItems' === */}
+              {/* (Cart items map remains unchanged) */}
               {cartItems.map((item) => (
                 <div key={item._id} className="flex gap-4">
                   <img
@@ -345,6 +327,7 @@ const Checkout = () => {
             </div>
 
             <div className="border-t pt-4 space-y-2">
+              {/* (Totals display remains unchanged) */}
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
                 <span>${total.toFixed(2)}</span>

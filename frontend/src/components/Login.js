@@ -195,17 +195,23 @@ const Login = ({ setIsAuthenticated }) => {
             </p>
           </div>
 
-          {/* Development Helper */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-xs font-semibold text-yellow-800 mb-2">🔧 Development Mode</p>
-              <p className="text-xs text-yellow-700">
-                <strong>Test Account:</strong><br />
-                Email: test@example.com<br />
-                Password: password123
+          {/* === MODIFIED: Demo Users === */}
+          <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-xs font-semibold text-yellow-800 mb-2">🚀 Demo Accounts</p>
+            <div className="text-xs text-yellow-700">
+              <p><strong>Emails:</strong></p>
+              <ul className="list-disc list-inside ml-2">
+                <li>anant@gmail.com</li>
+                <li>nitish@gmail.com</li>
+                <li>lalu@gmail.com</li>
+              </ul>
+              <p className="mt-1">
+                <strong>Password:</strong> 123456 (for all accounts)
               </p>
             </div>
-          )}
+          </div>
+          {/* === END MODIFICATION === */}
+
         </div>
 
         {/* Footer */}

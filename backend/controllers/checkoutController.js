@@ -15,25 +15,12 @@ const generateOrderNumber = () => {
 // @access  Private
 const processCheckout = async (req, res) => {
   try {
-    const { customerName, customerEmail } = req.body;
+    // === MODIFIED: Get user info from req.user (from 'protect' middleware) ===
+    const { name: customerName, email: customerEmail } = req.user;
     const userId = req.user._id;
 
-    // Validate input
-    if (!customerName || !customerEmail) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide customer name and email'
-      });
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(customerEmail)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide a valid email address'
-      });
-    }
+    // === REMOVED: Validation for req.body.customerName and customerEmail ===
+    // We trust req.user, which is guaranteed by the 'protect' middleware.
 
     // Get cart
     const cart = await Cart.findOne({ userId }).populate('items.product');
@@ -46,7 +33,7 @@ const processCheckout = async (req, res) => {
     }
 
     // =================================================================
-    // === 2. NEW BLOCK: Validate and Update Product Stock ===
+    // === (Stock validation logic remains unchanged) ===
     // =================================================================
     const stockUpdatePromises = [];
     
@@ -78,7 +65,7 @@ const processCheckout = async (req, res) => {
     // Wait for all product stock updates to complete
     await Promise.all(stockUpdatePromises);
     // =================================================================
-    // === End of new block ===
+    // === End of stock logic ===
     // =================================================================
 
 
@@ -99,8 +86,8 @@ const processCheckout = async (req, res) => {
     const order = await Order.create({
       userId,
       orderNumber: generateOrderNumber(),
-      customerName,
-      customerEmail,
+      customerName, // This now securely comes from req.user
+      customerEmail, // This now securely comes from req.user
       items: orderItems,
       total,
       status: 'completed'
