@@ -103,6 +103,7 @@ A full-stack shopping cart application built with **React**, **Redux Toolkit**, 
         │   └── 📂 slices/                            [/mock-ecom-cart/frontend/src/redux/slices/]
         │       ├── 📄 productSlice.js                [/mock-ecom-cart/frontend/src/redux/slices/productSlice.js]
         │       └── 📄 cartSlice.js                   [/mock-ecom-cart/frontend/src/redux/slices/cartSlice.js]
+                └── 📄 authSlice.js                   [/mock-ecom-cart/frontend/src/redux/slices/authSlice.js]
         │
         └── 📂 services/                              [/mock-ecom-cart/frontend/src/services/]
             └── 📄 api.js                             [/mock-ecom-cart/frontend/src/services/api.js]
@@ -185,7 +186,7 @@ Add screenshots to `frontend/public/screenshots/`:
 
 ## 👨‍💻 Developer
 
-[Your Name]
+[Madhav]
 - GitHub: [Madhav060](https://github.com/Madhav060)
 - Email: madhavthakur9625@gmail.com
 
