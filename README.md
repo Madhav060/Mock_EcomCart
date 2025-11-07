@@ -6,34 +6,33 @@ A full-stack shopping cart application built with **React**, **Redux Toolkit**, 
 
 ## 🚀 Features
 
-- Browse products catalog with beautiful Tailwind UI  
-- Add/remove items from cart  
-- Update item quantities dynamically  
-- Real-time cart total calculation  
-- Checkout with user information  
-- Order receipt generation  
-- Redux Toolkit for state management  
-- MongoDB for data persistence  
-- Fully responsive Tailwind design  
+- Browse products catalog with beautiful Tailwind UI
+- Add/remove items from cart
+- Update item quantities dynamically
+- Real-time cart total calculation
+- Checkout with user information
+- Order receipt generation
+- Redux Toolkit for state management
+- MongoDB for data persistence
+- Fully responsive Tailwind design
 
 ---
 
 ## 🛠️ Tech Stack
 
 **Frontend:**
-- React 18  
-- Redux Toolkit  
-- React Router  
-- Axios  
-- **Tailwind CSS** (Utility-first CSS framework)
+  - React 18
+  - Redux Toolkit
+  - React Router
+  - Axios
+  - Tailwind CSS (Utility-first CSS framework)
 
 **Backend:**
-- Node.js  
-- Express.js  
-- MongoDB with Mongoose  
-- CORS enabled  
+  - Node.js
+  - Express.js
+  - MongoDB with Mongoose
+  - CORS enabled
 
----
 
 ## 📁 Complete File Structure with Paths
 
@@ -108,7 +107,7 @@ A full-stack shopping cart application built with **React**, **Redux Toolkit**, 
 
 
 #
----
+
 
 ## 🔧 Installation & Setup
 
