@@ -36,75 +36,74 @@ A full-stack shopping cart application built with **React**, **Redux Toolkit**, 
 
 ## 📁 Complete File Structure with Paths
 
-📦 mock-ecom-cart/ [ROOT]
+📦 mock-ecom-cart/                                    [ROOT]
 │
-├── 📄 README.md [/mock-ecom-cart/README.md]
-├── 📄 SETUP_GUIDE.md [/mock-ecom-cart/SETUP_GUIDE.md]
-├── 📄 DEPLOYMENT_GUIDE.md [/mock-ecom-cart/DEPLOYMENT_GUIDE.md]
-├── 📄 QUICK_START.md [/mock-ecom-cart/QUICK_START.md]
-├── 📄 .gitignore [/mock-ecom-cart/.gitignore]
+├── 📄 README.md                                      [/mock-ecom-cart/README.md]
+├── 📄 SETUP_GUIDE.md                                 [/mock-ecom-cart/SETUP_GUIDE.md]
+├── 📄 DEPLOYMENT_GUIDE.md                            [/mock-ecom-cart/DEPLOYMENT_GUIDE.md]
+├── 📄 QUICK_START.md                                 [/mock-ecom-cart/QUICK_START.md]
+├── 📄 .gitignore                                     [/mock-ecom-cart/.gitignore]
 │
-├── 📂 backend/ [/mock-ecom-cart/backend/]
-│ ├── 📄 package.json [/mock-ecom-cart/backend/package.json]
-│ ├── 📄 .env [/mock-ecom-cart/backend/.env]
-│ ├── 📄 server.js [/mock-ecom-cart/backend/server.js]
-│ ├── 📄 seedData.js [/mock-ecom-cart/backend/seedData.js]
-│ │
-│ ├── 📂 config/ [/mock-ecom-cart/backend/config/]
-│ │ └── 📄 db.js [/mock-ecom-cart/backend/config/db.js]
-│ │
-│ ├── 📂 models/ [/mock-ecom-cart/backend/models/]
-│ │ ├── 📄 Product.js [/mock-ecom-cart/backend/models/Product.js]
-│ │ ├── 📄 Cart.js [/mock-ecom-cart/backend/models/Cart.js]
-│ │ └── 📄 Order.js [/mock-ecom-cart/backend/models/Order.js]
-│ │
-│ ├── 📂 controllers/ [/mock-ecom-cart/backend/controllers/]
-│ │ ├── 📄 productController.js [/mock-ecom-cart/backend/controllers/productController.js]
-│ │ ├── 📄 cartController.js [/mock-ecom-cart/backend/controllers/cartController.js]
-│ │ └── 📄 checkoutController.js [/mock-ecom-cart/backend/controllers/checkoutController.js]
-│ │
-│ └── 📂 routes/ [/mock-ecom-cart/backend/routes/]
-│ ├── 📄 productRoutes.js [/mock-ecom-cart/backend/routes/productRoutes.js]
-│ ├── 📄 cartRoutes.js [/mock-ecom-cart/backend/routes/cartRoutes.js]
-│ └── 📄 checkoutRoutes.js [/mock-ecom-cart/backend/routes/checkoutRoutes.js]
+├── 📂 backend/                                       [/mock-ecom-cart/backend/]
+│   ├── 📄 package.json                               [/mock-ecom-cart/backend/package.json]
+│   ├── 📄 .env                                       [/mock-ecom-cart/backend/.env]
+│   ├── 📄 server.js                                  [/mock-ecom-cart/backend/server.js]
+│   ├── 📄 seedData.js                                [/mock-ecom-cart/backend/seedData.js]
+│   │
+│   ├── 📂 config/                                    [/mock-ecom-cart/backend/config/]
+│   │   └── 📄 db.js                                  [/mock-ecom-cart/backend/config/db.js]
+│   │
+│   ├── 📂 models/                                    [/mock-ecom-cart/backend/models/]
+│   │   ├── 📄 Product.js                             [/mock-ecom-cart/backend/models/Product.js]
+│   │   ├── 📄 Cart.js                                [/mock-ecom-cart/backend/models/Cart.js]
+│   │   └── 📄 Order.js                               [/mock-ecom-cart/backend/models/Order.js]
+│   │
+│   ├── 📂 controllers/                               [/mock-ecom-cart/backend/controllers/]
+│   │   ├── 📄 productController.js                   [/mock-ecom-cart/backend/controllers/productController.js]
+│   │   ├── 📄 cartController.js                      [/mock-ecom-cart/backend/controllers/cartController.js]
+│   │   └── 📄 checkoutController.js                  [/mock-ecom-cart/backend/controllers/checkoutController.js]
+│   │
+│   └── 📂 routes/                                    [/mock-ecom-cart/backend/routes/]
+│       ├── 📄 productRoutes.js                       [/mock-ecom-cart/backend/routes/productRoutes.js]
+│       ├── 📄 cartRoutes.js                          [/mock-ecom-cart/backend/routes/cartRoutes.js]
+│       └── 📄 checkoutRoutes.js                      [/mock-ecom-cart/backend/routes/checkoutRoutes.js]
 │
-└── 📂 frontend/ [/mock-ecom-cart/frontend/]
-├── 📄 package.json [/mock-ecom-cart/frontend/package.json]
-├── 📄 tailwind.config.js [/mock-ecom-cart/frontend/tailwind.config.js]
-├── 📄 postcss.config.js [/mock-ecom-cart/frontend/postcss.config.js]
-│
-├── 📂 public/ [/mock-ecom-cart/frontend/public/]
-│ └── 📄 index.html [/mock-ecom-cart/frontend/public/index.html]
-│
-└── 📂 src/ [/mock-ecom-cart/frontend/src/]
-├── 📄 index.js [/mock-ecom-cart/frontend/src/index.js]
-├── 📄 index.css [/mock-ecom-cart/frontend/src/index.css]
-├── 📄 App.js [/mock-ecom-cart/frontend/src/App.js]
-│
-├── 📂 components/ [/mock-ecom-cart/frontend/src/components/]
-│ ├── 📄 Navbar.js [/mock-ecom-cart/frontend/src/components/Navbar.js]
-│ ├── 📄 ProductCard.js [/mock-ecom-cart/frontend/src/components/ProductCard.js]
-│ ├── 📄 ProductList.js [/mock-ecom-cart/frontend/src/components/ProductList.js]
-│ ├── 📄 Cart.js [/mock-ecom-cart/frontend/src/components/Cart.js]
-│ ├── 📄 CartItem.js [/mock-ecom-cart/frontend/src/components/CartItem.js]
-│ ├── 📄 Checkout.js [/mock-ecom-cart/frontend/src/components/Checkout.js]
-│ └── 📄 Receipt.js [/mock-ecom-cart/frontend/src/components/Receipt.js]
-│
-├── 📂 pages/ [/mock-ecom-cart/frontend/src/pages/]
-│ ├── 📄 Home.js [/mock-ecom-cart/frontend/src/pages/Home.js]
-│ ├── 📄 CartPage.js [/mock-ecom-cart/frontend/src/pages/CartPage.js]
-│ └── 📄 CheckoutPage.js [/mock-ecom-cart/frontend/src/pages/CheckoutPage.js]
-│
-├── 📂 redux/ [/mock-ecom-cart/frontend/src/redux/]
-│ ├── 📄 store.js [/mock-ecom-cart/frontend/src/redux/store.js]
-│ └── 📂 slices/ [/mock-ecom-cart/frontend/src/redux/slices/]
-│ ├── 📄 productSlice.js [/mock-ecom-cart/frontend/src/redux/slices/productSlice.js]
-│ └── 📄 cartSlice.js [/mock-ecom-cart/frontend/src/redux/slices/cartSlice.js]
-  └── 📄 authSlice.js [/mock-ecom-cart/frontend/src/redux/slices/authSlice.js]
-│
-└── 📂 services/ [/mock-ecom-cart/frontend/src/services/]
-└── 📄 api.js [/mock-ecom-cart/frontend/src/services/api.js]
-
+└── 📂 frontend/                                      [/mock-ecom-cart/frontend/]
+    ├── 📄 package.json                               [/mock-ecom-cart/frontend/package.json]
+    ├── 📄 tailwind.config.js                         [/mock-ecom-cart/frontend/tailwind.config.js]
+    ├── 📄 postcss.config.js                          [/mock-ecom-cart/frontend/postcss.config.js]
+    │
+    ├── 📂 public/                                    [/mock-ecom-cart/frontend/public/]
+    │   └── 📄 index.html                             [/mock-ecom-cart/frontend/public/index.html]
+    │
+    └── 📂 src/                                       [/mock-ecom-cart/frontend/src/]
+        ├── 📄 index.js                               [/mock-ecom-cart/frontend/src/index.js]
+        ├── 📄 index.css                              [/mock-ecom-cart/frontend/src/index.css]
+        ├── 📄 App.js                                 [/mock-ecom-cart/frontend/src/App.js]
+        │
+        ├── 📂 components/                            [/mock-ecom-cart/frontend/src/components/]
+        │   ├── 📄 Navbar.js                          [/mock-ecom-cart/frontend/src/components/Navbar.js]
+        │   ├── 📄 ProductCard.js                     [/mock-ecom-cart/frontend/src/components/ProductCard.js]
+        │   ├── 📄 ProductList.js                     [/mock-ecom-cart/frontend/src/components/ProductList.js]
+        │   ├── 📄 Cart.js                            [/mock-ecom-cart/frontend/src/components/Cart.js]
+        │   ├── 📄 CartItem.js                        [/mock-ecom-cart/frontend/src/components/CartItem.js]
+        │   ├── 📄 Checkout.js                        [/mock-ecom-cart/frontend/src/components/Checkout.js]
+        │   └── 📄 Receipt.js                         [/mock-ecom-cart/frontend/src/components/Receipt.js]
+        │
+        ├── 📂 pages/                                 [/mock-ecom-cart/frontend/src/pages/]
+        │   ├── 📄 Home.js                            [/mock-ecom-cart/frontend/src/pages/Home.js]
+        │   ├── 📄 CartPage.js                        [/mock-ecom-cart/frontend/src/pages/CartPage.js]
+        │   └── 📄 CheckoutPage.js                    [/mock-ecom-cart/frontend/src/pages/CheckoutPage.js]
+        │
+        ├── 📂 redux/                                 [/mock-ecom-cart/frontend/src/redux/]
+        │   ├── 📄 store.js                           [/mock-ecom-cart/frontend/src/redux/store.js]
+        │   └── 📂 slices/                            [/mock-ecom-cart/frontend/src/redux/slices/]
+        │       ├── 📄 productSlice.js                [/mock-ecom-cart/frontend/src/redux/slices/productSlice.js]
+        │       └── 📄 cartSlice.js                   [/mock-ecom-cart/frontend/src/redux/slices/cartSlice.js]
+                └── 📄 authSlice.js                   [/mock-ecom-cart/frontend/src/redux/slices/authSlice.js]
+        │
+        └── 📂 services/                              [/mock-ecom-cart/frontend/src/services/]
+            └── 📄 api.js                             [/mock-ecom-cart/frontend/src/services/api.js]
 
 #
 
