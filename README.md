@@ -187,7 +187,7 @@ Add screenshots to `frontend/public/screenshots/`:
 
 [Your Name]
 - GitHub: [Madhav060](https://github.com/Madhav060)
-- Email: madhavthakur9625@gmail.com
+- Email: madhavthakur9625@gmai.com
 
 ## 📄 License
 
