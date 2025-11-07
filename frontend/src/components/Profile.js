@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// === CORRECTION ===
+// Import the centralized api instance
+import api from '../services/api'; 
 
 const Profile = ({ setIsAuthenticated }) => {
   const [user, setUser] = useState(null);
@@ -14,26 +16,21 @@ const Profile = ({ setIsAuthenticated }) => {
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      const response = await axios.get('http://localhost:5000/api/auth/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      // === CORRECTION ===
+      // Use the 'api' instance, which already has the interceptor
+      // for adding the token. No manual header setup is needed.
+      const response = await api.get('/auth/profile');
       
-      setUser(response.data);
+      // The backend returns { success: true, data: { ... } }
+      setUser(response.data.data); 
       setLoading(false);
     } catch (err) {
       setError('Failed to load profile');
       setLoading(false);
       if (err.response?.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        // === CORRECTION ===
+        // Remove the correct item
+        localStorage.removeItem('userInfo');
         setIsAuthenticated(false);
         navigate('/login');
       }
@@ -41,8 +38,9 @@ const Profile = ({ setIsAuthenticated }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // === CORRECTION ===
+    // Remove the correct item
+    localStorage.removeItem('userInfo');
     setIsAuthenticated(false);
     navigate('/login');
   };
@@ -78,9 +76,13 @@ const Profile = ({ setIsAuthenticated }) => {
             <div className="space-y-6">
               {/* User Avatar */}
               <div className="flex justify-center">
-                <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </div>
+                {/* === CORRECTION ===
+                    Use the avatar URL from the user object */}
+                <img
+                  src={user?.avatar}
+                  alt={user?.name}
+                  className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-3xl font-bold"
+                />
               </div>
 
               {/* User Information */}

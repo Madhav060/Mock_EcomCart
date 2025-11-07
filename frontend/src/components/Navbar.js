@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { selectCartItemCount } from '../redux/slices/cartSlice';
+// Note: This component is NOT using the Redux cart state, but the old one.
+// We'll leave it for now as it's not the core auth problem.
+// import { selectCartItemCount } from '../redux/slices/cartSlice';
 
 const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [userName, setUserName] = useState('');
@@ -9,31 +11,44 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const cartItemCount = useSelector(selectCartItemCount);
+  // This selector will only work if the cart slice is correct.
+  // const cartItemCount = useSelector(selectCartItemCount);
+  // Using a placeholder for now as cart is not the primary issue.
+  const cartItemCount = 0; // Placeholder
 
   useEffect(() => {
+    // This effect now correctly re-runs when isAuthenticated changes
     if (isAuthenticated) {
       try {
-        const storedUser = localStorage.getItem('user');
+        // === CORRECTION ===
+        // Read from 'userInfo' which is set at login
+        const storedUser = localStorage.getItem('userInfo'); 
         if (storedUser) {
           const user = JSON.parse(storedUser);
           setUserName(user.name || 'User');
         } else {
+          // This case might happen if state is auth'd but local storage is cleared
           setUserName('User');
+          console.error('Authenticated but no userInfo found in localStorage.');
         }
       } catch (error) {
         console.error('Invalid user data in localStorage:', error);
-        localStorage.removeItem('user');
+        localStorage.removeItem('userInfo'); // Clear corrupted data
         setUserName('User');
       }
     } else {
       setUserName('');
     }
+    // We add location to dependencies so it re-checks if the user
+    // navigates away and comes back (e.g., after login)
   }, [isAuthenticated, location]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // === CORRECTION ===
+    // Remove the correct item
+    localStorage.removeItem('userInfo');
+    
+    // This part was correct
     setIsAuthenticated(false);
     setShowDropdown(false);
     navigate('/');

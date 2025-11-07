@@ -1,5 +1,7 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
+// 1. Import the Product model
+const Product = require('../models/Product');
 
 // Generate order number
 const generateOrderNumber = () => {
@@ -42,6 +44,43 @@ const processCheckout = async (req, res) => {
         message: 'Cart is empty'
       });
     }
+
+    // =================================================================
+    // === 2. NEW BLOCK: Validate and Update Product Stock ===
+    // =================================================================
+    const stockUpdatePromises = [];
+    
+    // Use a for...of loop to allow for async checks
+    for (const item of cart.items) {
+      const product = item.product;
+      const requestedQuantity = item.quantity;
+
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `One of your cart items (ID: ${item.product}) no longer exists.`
+        });
+      }
+
+      // Final stock check
+      if (product.stock < requestedQuantity) {
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient stock for ${product.name}. Only ${product.stock} left.`
+        });
+      }
+
+      // Decrement stock and add the save promise to the array
+      product.stock -= requestedQuantity;
+      stockUpdatePromises.push(product.save());
+    }
+
+    // Wait for all product stock updates to complete
+    await Promise.all(stockUpdatePromises);
+    // =================================================================
+    // === End of new block ===
+    // =================================================================
+
 
     // Prepare order items
     const orderItems = cart.items.map(item => ({

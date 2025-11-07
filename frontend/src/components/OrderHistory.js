@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// 1. Import the centralized 'api' instance instead of 'axios'
+import api from '../services/api';
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -14,26 +15,19 @@ const OrderHistory = () => {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      const response = await axios.get('http://localhost:5000/api/orders', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      // 2. Use the 'api' instance (no headers needed)
+      // 3. Use the correct endpoint '/checkout/myorders'
+      const response = await api.get('/checkout/myorders');
       
-      setOrders(response.data);
+      // 4. Access the 'data' array from the response object
+      setOrders(response.data.data);
       setLoading(false);
     } catch (err) {
       setError('Failed to load order history');
       setLoading(false);
       if (err.response?.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        // 5. Remove the correct 'userInfo' key on auth failure
+        localStorage.removeItem('userInfo');
         navigate('/login');
       }
     }
@@ -93,8 +87,9 @@ const OrderHistory = () => {
               <div className="bg-gray-50 px-6 py-4 border-b">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-sm text-gray-600">Order ID</p>
-                    <p className="font-mono text-sm font-medium">{order._id}</p>
+                    <p className="text-sm text-gray-600">Order Number</p>
+                    {/* 6. Use the correct 'orderNumber' field */}
+                    <p className="font-mono text-sm font-medium">{order.orderNumber}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600">Order Date</p>
@@ -115,8 +110,9 @@ const OrderHistory = () => {
               <div className="px-6 py-4">
                 <h3 className="font-semibold mb-3">Items ({order.items?.length || 0})</h3>
                 <div className="space-y-3">
-                  {order.items?.map((item, index) => (
-                    <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                  {/* 7. Use item._id for a stable React key instead of index */}
+                  {order.items?.map((item) => (
+                    <div key={item._id} className="flex justify-between items-center py-2 border-b last:border-b-0">
                       <div className="flex-1">
                         <p className="font-medium">{item.name}</p>
                         <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
@@ -138,7 +134,8 @@ const OrderHistory = () => {
                   <div>
                     <p className="text-sm text-gray-600 font-medium mb-1">Customer</p>
                     <p className="text-sm">{order.customerName}</p>
-                    <p className="text-sm text-gray-600">{order.email}</p>
+                    {/* 8. Use the correct 'customerEmail' field */}
+                    <p className="text-sm text-gray-600">{order.customerEmail}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600 font-medium mb-1">Total Amount</p>

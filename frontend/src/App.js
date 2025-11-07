@@ -14,29 +14,20 @@ import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is logged in on mount
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-      setIsAuthenticated(true);
+  // Check auth state from localStorage on initial load
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        const user = JSON.parse(userInfo);
+        return !!user.token; // Set to true if token exists
+      }
+    } catch (error) {
+      console.error('Failed to parse userInfo:', error);
+      localStorage.removeItem('userInfo');
     }
-    
-    setLoading(false);
-  }, []);
-
-  // Show loading state while checking authentication
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
+    return false; // Default to false
+  });
 
   return (
     <Provider store={store}>

@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
-import { clearCart, selectCartItems, selectCartTotal } from '../redux/slices/cartSlice';
+import { useDispatch } from 'react-redux';
+import api from '../services/api'; // Use the authenticated api utility
+import { clearCart } from '../redux/slices/cartSlice'; // We still need this to clear the redux state
 
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const cartItems = useSelector(selectCartItems);
-  const total = useSelector(selectCartTotal);
 
+  // === CORRECTION 1: Use component state instead of Redux selectors ===
+  const [cartItems, setCartItems] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [cartLoading, setCartLoading] = useState(true);
+  
   const [formData, setFormData] = useState({
     customerName: '',
     customerEmail: ''
@@ -18,6 +21,43 @@ const Checkout = () => {
   const [error, setError] = useState('');
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderData, setOrderData] = useState(null);
+
+  // === CORRECTION 2: Fetch cart data on component load ===
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        setCartLoading(true);
+        setError(null);
+        
+        // Use the centralized api service
+        const response = await api.get('/cart');
+        
+        if (response.data.success) {
+          const cart = response.data.data;
+          setCartItems(cart.items || []);
+          // Calculate total from the fetched items
+          const cartTotal = (cart.items || []).reduce((sum, item) => {
+             const price = item.product?.price || 0;
+             const quantity = item.quantity || 0;
+             return sum + (price * quantity);
+          }, 0);
+          setTotal(cartTotal);
+        }
+      } catch (err) {
+        console.error('Error fetching cart for checkout:', err);
+        if (err.response?.status === 401) {
+          navigate('/login');
+        } else {
+          setError('Failed to load cart data. Please try again.');
+        }
+      } finally {
+        setCartLoading(false);
+      }
+    };
+    
+    fetchCart();
+  }, [navigate]);
+
 
   const handleChange = (e) => {
     setFormData({
@@ -46,6 +86,7 @@ const Checkout = () => {
       return;
     }
 
+    // === CORRECTION 3: Check component's state for cartItems ===
     if (cartItems.length === 0) {
       setError('Your cart is empty');
       setLoading(false);
@@ -53,20 +94,18 @@ const Checkout = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await axios.post(
-        'http://localhost:5000/api/checkout',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+      // === CORRECTION 4: Use the centralized 'api' service ===
+      // The interceptor will automatically add the auth token
+      const response = await api.post(
+        '/checkout',
+        formData
       );
 
-      // Clear Redux cart
+      // Clear Redux cart (good practice, though this component isn't using it)
       dispatch(clearCart());
+      // Also clear local component cart state
+      setCartItems([]);
+      setTotal(0);
 
       // Show success
       setOrderComplete(true);
@@ -84,12 +123,16 @@ const Checkout = () => {
     }
   };
 
+  // --- RENDER LOGIC ---
+
   if (orderComplete && orderData) {
+    // (This part was correct, no changes needed)
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="mb-6">
+            {/* ... Order success message ... */}
+             <div className="mb-6">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-10 h-10 text-green-600"
@@ -167,11 +210,24 @@ const Checkout = () => {
     );
   }
 
-  if (cartItems.length === 0) {
+  if (cartLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading your cart...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (cartItems.length === 0 && !cartLoading) {
+    // (This part was correct, no changes needed)
     return (
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto text-center">
-          <div className="bg-gray-100 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
+          {/* ... Empty cart message ... */}
+           <div className="bg-gray-100 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
             <svg
               className="w-16 h-16 text-gray-400"
               fill="none"
@@ -269,18 +325,19 @@ const Checkout = () => {
             <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
 
             <div className="space-y-4 mb-6">
+              {/* === CORRECTION 5: Iterate over component state 'cartItems' === */}
               {cartItems.map((item) => (
                 <div key={item._id} className="flex gap-4">
                   <img
-                    src={item.image || 'https://via.placeholder.com/80'}
-                    alt={item.name}
+                    src={item.product?.image || 'https://via.placeholder.com/80'}
+                    alt={item.product?.name}
                     className="w-20 h-20 object-cover rounded"
                   />
                   <div className="flex-1">
-                    <h3 className="font-semibold text-sm">{item.name}</h3>
+                    <h3 className="font-semibold text-sm">{item.product?.name}</h3>
                     <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>
                     <p className="font-semibold text-blue-600">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ${(item.product?.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 </div>

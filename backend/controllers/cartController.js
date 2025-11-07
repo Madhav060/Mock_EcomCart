@@ -58,16 +58,9 @@ const addToCart = async (req, res) => {
         message: 'Product not found'
       });
     }
-
-    // Check stock
-    if (product.stock < quantity) {
-      return res.status(400).json({
-        success: false,
-        message: 'Insufficient stock'
-      });
-    }
-
-    // Get or create cart
+    
+    // === STOCK LOGIC IMPROVEMENT ===
+    // Get or create cart first
     let cart = await Cart.findOne({ userId });
     if (!cart) {
       cart = new Cart({ userId, items: [] });
@@ -77,14 +70,31 @@ const addToCart = async (req, res) => {
     const existingItemIndex = cart.items.findIndex(
       item => item.product.toString() === productId
     );
-
+      
+    let newQuantity;
     if (existingItemIndex > -1) {
-      // Update quantity
-      cart.items[existingItemIndex].quantity += quantity;
+      // Item exists, calculate new total quantity
+      newQuantity = cart.items[existingItemIndex].quantity + quantity;
     } else {
-      // Add new item
-      cart.items.push({ product: productId, quantity });
+      // New item
+      newQuantity = quantity;
     }
+
+    // Check stock against the *total* quantity
+    if (product.stock < newQuantity) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient stock. Only ${product.stock} available.`
+      });
+    }
+
+    // Update or add the item
+    if (existingItemIndex > -1) {
+      cart.items[existingItemIndex].quantity = newQuantity;
+    } else {
+      cart.items.push({ product: productId, quantity: newQuantity });
+    }
+    // === END OF STOCK LOGIC IMPROVEMENT ===
 
     await cart.save();
     await cart.populate('items.product');
@@ -138,6 +148,16 @@ const updateCartItem = async (req, res) => {
         message: 'Item not found in cart'
       });
     }
+
+    // === STOCK CHECK ON UPDATE ===
+    const product = await Product.findById(cart.items[itemIndex].product);
+    if (product.stock < quantity) {
+       return res.status(400).json({
+        success: false,
+        message: `Insufficient stock. Only ${product.stock} available.`
+      });
+    }
+    // === END STOCK CHECK ===
 
     cart.items[itemIndex].quantity = quantity;
     await cart.save();

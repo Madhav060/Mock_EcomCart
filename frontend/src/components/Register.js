@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 
-const Register = () => {
+// Receive setIsAuthenticated from App.js
+const Register = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -73,11 +74,16 @@ const Register = () => {
         
         console.log('✅ Registration successful, token stored');
 
-        // Redirect to home page
+        // === CORRECTION ===
+        // 1. Update the parent App state
+        setIsAuthenticated(true);
+        
+        // 2. Navigate to home page
         navigate('/');
         
-        // Force reload to update navigation
-        window.location.reload();
+        // 3. REMOVED window.location.reload();
+        //    This is no longer needed as the state update will re-render the app.
+
       } else {
         throw new Error('Invalid response from server');
       }
@@ -320,4 +326,4 @@ const Register = () => {
   );
 };
 
-export default Register;  
+export default Register;

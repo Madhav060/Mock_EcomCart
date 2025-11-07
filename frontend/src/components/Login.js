@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 
-const Login = () => {
+// Receive setIsAuthenticated from App.js
+const Login = ({ setIsAuthenticated }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -47,11 +48,16 @@ const Login = () => {
         console.log('✅ Login successful, token stored');
         console.log('Token preview:', userData.token.substring(0, 20) + '...');
 
-        // Redirect to home page
+        // === CORRECTION ===
+        // 1. Update the parent App state
+        setIsAuthenticated(true);
+        
+        // 2. Navigate to home page
         navigate('/');
         
-        // Force reload to update navigation
-        window.location.reload();
+        // 3. REMOVED window.location.reload();
+        //    This is no longer needed as the state update will re-render the app.
+
       } else {
         throw new Error('Invalid response from server');
       }
