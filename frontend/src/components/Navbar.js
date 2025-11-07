@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-// Note: This component is NOT using the Redux cart state, but the old one.
-// We'll leave it for now as it's not the core auth problem.
-// import { selectCartItemCount } from '../redux/slices/cartSlice';
+// Import the selector
+import { selectCartItemCount } from '../redux/slices/cartSlice';
 
 const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [userName, setUserName] = useState('');
@@ -11,10 +10,8 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // This selector will only work if the cart slice is correct.
-  // const cartItemCount = useSelector(selectCartItemCount);
-  // Using a placeholder for now as cart is not the primary issue.
-  const cartItemCount = 0; // Placeholder
+  // This selector will now get the count from the Redux store
+  const cartItemCount = useSelector(selectCartItemCount);
 
   useEffect(() => {
     // This effect now correctly re-runs when isAuthenticated changes
@@ -107,6 +104,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
+                {/* This will now render the count from Redux */}
                 {cartItemCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                     {cartItemCount}

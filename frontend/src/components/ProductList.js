@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux'; // Import useDispatch
 import api from '../services/api';
+import { setCartItems } from '../redux/slices/cartSlice'; // Import the action
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [addingToCart, setAddingToCart] = useState(null);
+  const dispatch = useDispatch(); // Get the dispatch function
 
   // Check if user is logged in
   const isAuthenticated = () => {
@@ -66,6 +69,8 @@ const ProductList = () => {
 
       if (response.data.success) {
         alert('Product added to cart successfully!');
+        // Dispatch the updated cart items to Redux
+        dispatch(setCartItems(response.data.data.items));
       }
     } catch (err) {
       console.error('❌ Error adding to cart:', err);

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api'; // Use the authenticated api utility
+import { useDispatch } from 'react-redux'; // Import useDispatch
+import { setCartItems, clearCart } from '../redux/slices/cartSlice'; // Import actions
 
 const Cart = () => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItemsState] = useState([]); // Renamed to avoid conflict
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch(); // Get the dispatch function
 
   // Check authentication
   const isAuthenticated = () => {
@@ -27,6 +30,7 @@ const Cart = () => {
       return;
     }
     fetchCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCart = async () => {
@@ -39,7 +43,9 @@ const Cart = () => {
       if (response.data.success) {
         // Backend returns cart with populated items
         const cart = response.data.data;
-        setCartItems(cart.items || []);
+        setCartItemsState(cart.items || []);
+        // Also update Redux state in case it's out of sync
+        dispatch(setCartItems(cart.items || []));
       }
     } catch (err) {
       console.error('Error fetching cart:', err);
@@ -65,7 +71,9 @@ const Cart = () => {
 
       if (response.data.success) {
         // Update local state
-        setCartItems(response.data.data.items);
+        setCartItemsState(response.data.data.items);
+        // Dispatch update to Redux
+        dispatch(setCartItems(response.data.data.items));
       }
     } catch (err) {
       console.error('Error updating quantity:', err);
@@ -81,7 +89,9 @@ const Cart = () => {
       
       if (response.data.success) {
         // Update local state
-        setCartItems(response.data.data.items);
+        setCartItemsState(response.data.data.items);
+        // Dispatch update to Redux
+        dispatch(setCartItems(response.data.data.items));
       }
     } catch (err) {
       console.error('Error removing item:', err);
@@ -96,7 +106,9 @@ const Cart = () => {
       const response = await api.delete('/cart');
       
       if (response.data.success) {
-        setCartItems([]);
+        setCartItemsState([]);
+        // Dispatch update to Redux
+        dispatch(clearCart());
       }
     } catch (err) {
       console.error('Error clearing cart:', err);
