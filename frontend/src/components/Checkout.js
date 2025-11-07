@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import api from '../services/api'; // Use the authenticated api utility
 import { clearCart } from '../redux/slices/cartSlice'; // We still need this to clear the redux state
+import toast from 'react-hot-toast'; // <-- Import toast
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Checkout = () => {
         setUser(JSON.parse(userInfo));
       } else {
         // If no user, redirect to login immediately
-        alert('You must be logged in to check out.');
+        toast.error('You must be logged in to check out.'); // <-- Use toast
         navigate('/login');
         return; // Stop execution
       }
@@ -108,6 +109,8 @@ const Checkout = () => {
       setOrderComplete(true);
       setOrderData(response.data.data);
       setLoading(false);
+      
+      toast.success('Order placed successfully!'); // <-- Use toast
 
       setTimeout(() => {
         navigate('/orders');

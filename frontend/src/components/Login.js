@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
+import toast from 'react-hot-toast'; // <-- 1. Import toast
 
 // Receive setIsAuthenticated from App.js
 const Login = ({ setIsAuthenticated }) => {
@@ -11,6 +12,40 @@ const Login = ({ setIsAuthenticated }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // --- 2. Add state to track what's been copied ---
+  const [copiedEmail, setCopiedEmail] = useState('');
+  const [copiedPassword, setCopiedPassword] = useState(false);
+
+  // --- 3. Define demo users and copy handler ---
+  const demoUsers = [
+    { id: 1, email: 'anant@gmail.com' },
+    { id: 2, email: 'nitish@gmail.com' },
+    { id: 3, email: 'lalu@gmail.com' },
+  ];
+  const demoPassword = '123456';
+
+  const handleCopy = (text, type, id = null) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`Copied ${type} to clipboard!`);
+      
+      if (type === 'email') {
+        setCopiedEmail(id);
+        setCopiedPassword(false);
+        setTimeout(() => setCopiedEmail(''), 2000); // Reset after 2s
+      } else if (type === 'password') {
+        setCopiedPassword(true);
+        setCopiedEmail('');
+        setTimeout(() => setCopiedPassword(false), 2000); // Reset after 2s
+      }
+
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+      toast.error('Failed to copy text');
+    });
+  };
+  
+  // --- (Rest of the component logic is unchanged) ---
 
   const handleChange = (e) => {
     setFormData({
@@ -85,16 +120,17 @@ const Login = ({ setIsAuthenticated }) => {
       <div className="max-w-md w-full">
         {/* Card Container */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+            <div className="mx-auto h-16 w-16 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
               <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Sign in to Vibe Commerce</h2>
             <p className="mt-2 text-sm text-gray-600">
-              Sign in to your account to continue
+              Welcome back!
             </p>
           </div>
 
@@ -195,19 +231,56 @@ const Login = ({ setIsAuthenticated }) => {
             </p>
           </div>
 
-          {/* === MODIFIED: Demo Users === */}
+          {/* === 4. MODIFIED: Demo Users with Copy Buttons === */}
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-xs font-semibold text-yellow-800 mb-2">🚀 Demo Accounts</p>
-            <div className="text-xs text-yellow-700">
-              <p><strong>Emails:</strong></p>
-              <ul className="list-disc list-inside ml-2">
-                <li>anant@gmail.com</li>
-                <li>nitish@gmail.com</li>
-                <li>lalu@gmail.com</li>
-              </ul>
-              <p className="mt-1">
-                <strong>Password:</strong> 123456 (for all accounts)
-              </p>
+            <p className="text-sm font-semibold text-yellow-800 mb-3">🚀 Demo Accounts</p>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-yellow-700">Emails:</p>
+              {demoUsers.map((user) => (
+                <div key={user.id} className="flex items-center justify-between">
+                  <span className="text-sm text-yellow-900 font-mono">{user.email}</span>
+                  <button
+                    onClick={() => handleCopy(user.email, 'email', user.id)}
+                    title="Copy email"
+                    className="p-1.5 rounded-md hover:bg-yellow-200 text-yellow-700 hover:text-yellow-900 transition-colors"
+                  >
+                    {copiedEmail === user.id ? (
+                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              ))}
+              
+              <div className="border-t border-yellow-200 my-2"></div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-yellow-700">Password:</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-yellow-900 font-mono">{demoPassword}</span>
+                  <button
+                    onClick={() => handleCopy(demoPassword, 'password')}
+                    title="Copy password"
+                    className="p-1.5 rounded-md hover:bg-yellow-200 text-yellow-700 hover:text-yellow-900 transition-colors"
+                  >
+                    {copiedPassword ? (
+                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
           {/* === END MODIFICATION === */}

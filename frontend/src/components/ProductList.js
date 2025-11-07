@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-// 1. Import useSelector to read from the Redux store
 import { useDispatch, useSelector } from 'react-redux';
 import api from '../services/api';
-// 2. Import the cart items selector
 import { setCartItems, selectCartItems } from '../redux/slices/cartSlice';
+import toast from 'react-hot-toast'; // <-- Import toast
+import { useNavigate } from 'react-router-dom'; // <-- Import useNavigate
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -11,11 +11,10 @@ const ProductList = () => {
   const [error, setError] = useState(null);
   const [addingToCart, setAddingToCart] = useState(null); // Use this for all cart operations
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // <-- Get navigate function
 
-  // 3. Get the current cart items from the Redux store
   const cartItems = useSelector(selectCartItems);
 
-  // Check if user is logged in
   const isAuthenticated = () => {
     try {
       const userInfo = localStorage.getItem('userInfo');
@@ -28,7 +27,6 @@ const ProductList = () => {
     }
   };
 
-  // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -53,8 +51,8 @@ const ProductList = () => {
 
   const handleAddToCart = async (productId) => {
     if (!isAuthenticated()) {
-      alert('Please login to add items to cart');
-      window.location.href = '/login';
+      toast.error('Please login to add items to cart'); // <-- Use toast
+      navigate('/login'); // <-- Navigate
       return;
     }
 
@@ -68,8 +66,8 @@ const ProductList = () => {
       });
 
       if (response.data.success) {
-        // Dispatch the updated cart items to Redux
         dispatch(setCartItems(response.data.data.items));
+        toast.success('Product added to cart!'); // <-- Use toast
       }
     } catch (err) {
       console.error('Error adding to cart:', err);
@@ -78,48 +76,46 @@ const ProductList = () => {
         const message = err.response.data?.message || 'Failed to add to cart';
         
         if (err.response.status === 401) {
-          alert('Your session has expired. Please login again.');
+          toast.error('Your session has expired. Please login again.'); // <-- Use toast
           localStorage.removeItem('userInfo');
-          window.location.href = '/login';
+          navigate('/login'); // <-- Navigate
         } else {
-          alert(message);
+          toast.error(message); // <-- Use toast
         }
       } else if (err.request) {
-        alert('Cannot connect to server. Please check your connection.');
+        toast.error('Cannot connect to server. Please check your connection.'); // <-- Use toast
       } else {
-        alert('An error occurred. Please try again.');
+        toast.error('An error occurred. Please try again.'); // <-- Use toast
       }
     } finally {
       setAddingToCart(null);
     }
   };
 
-  // 4. Add a function to handle removing items
   const handleRemoveItem = async (cartItemId) => {
     try {
-      setAddingToCart(cartItemId); // Use this to show loading
+      setAddingToCart(cartItemId); 
       const response = await api.delete(`/cart/${cartItemId}`);
       if (response.data.success) {
         dispatch(setCartItems(response.data.data.items));
+        toast.success('Item removed from cart'); // <-- Use toast
       }
     } catch (err) {
       console.error('Error removing item:', err);
-      alert('Failed to remove item');
+      toast.error('Failed to remove item'); // <-- Use toast
     } finally {
       setAddingToCart(null);
     }
   };
 
-  // 5. Add a function to handle quantity updates
   const handleUpdateQuantity = async (cartItemId, newQuantity, productId) => {
     if (newQuantity < 1) {
-      // If quantity drops to 0, remove the item
       await handleRemoveItem(cartItemId);
       return;
     }
 
     try {
-      setAddingToCart(productId); // Use product ID for loading state
+      setAddingToCart(productId); 
       const response = await api.put(`/cart/${cartItemId}`, {
         quantity: newQuantity
       });
@@ -129,12 +125,11 @@ const ProductList = () => {
       }
     } catch (err) {
       console.error('Error updating quantity:', err);
-      alert(err.response?.data?.message || 'Failed to update quantity');
+      toast.error(err.response?.data?.message || 'Failed to update quantity'); // <-- Use toast
     } finally {
       setAddingToCart(null);
     }
   };
-
 
   if (loading) {
     return (
@@ -176,7 +171,7 @@ const ProductList = () => {
               ⚠️ Please login to add items to cart
             </p>
             <button 
-              onClick={() => window.location.href = '/login'}
+              onClick={() => navigate('/login')}
               className="bg-white text-blue-600 hover:bg-gray-100 font-semibold py-2 px-6 rounded-lg transition shadow-md"
             >
               Login Now
@@ -188,7 +183,6 @@ const ProductList = () => {
       {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => {
-          // 6. Check if this product is in the cart
           const cartItem = cartItems.find(item => item.product?._id === product._id);
           const isProcessing = addingToCart === product._id || addingToCart === cartItem?._id;
 
@@ -241,7 +235,7 @@ const ProductList = () => {
                     }
                   </p>
 
-                  {/* 7. Conditional Rendering: Show quantity controls or "Add to Cart" button */}
+                  {/* Conditional Rendering: Show quantity controls or "Add to Cart" button */}
                   {isAuthenticated() && cartItem ? (
                     <div className="flex items-center justify-between">
                       <span className="text-lg text-gray-700 font-medium">Quantity:</span>

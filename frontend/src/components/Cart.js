@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api'; // Use the authenticated api utility
 import { useDispatch } from 'react-redux'; // Import useDispatch
 import { setCartItems, clearCart } from '../redux/slices/cartSlice'; // Import actions
+import toast from 'react-hot-toast'; // <-- Import toast
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const Cart = () => {
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      alert('Please login to view your cart');
+      toast.error('Please login to view your cart'); // <-- Use toast
       navigate('/login');
       return;
     }
@@ -50,7 +51,7 @@ const Cart = () => {
     } catch (err) {
       console.error('Error fetching cart:', err);
       if (err.response?.status === 401) {
-        alert('Session expired. Please login again.');
+        toast.error('Session expired. Please login again.'); // <-- Use toast
         localStorage.removeItem('userInfo');
         navigate('/login');
       } else {
@@ -77,7 +78,7 @@ const Cart = () => {
       }
     } catch (err) {
       console.error('Error updating quantity:', err);
-      alert('Failed to update quantity');
+      toast.error(err.response?.data?.message || 'Failed to update quantity'); // <-- Use toast
     }
   };
 
@@ -92,10 +93,11 @@ const Cart = () => {
         setCartItemsState(response.data.data.items);
         // Dispatch update to Redux
         dispatch(setCartItems(response.data.data.items));
+        toast.success('Item removed'); // <-- Use toast
       }
     } catch (err) {
       console.error('Error removing item:', err);
-      alert('Failed to remove item');
+      toast.error('Failed to remove item'); // <-- Use toast
     }
   };
 
@@ -109,10 +111,11 @@ const Cart = () => {
         setCartItemsState([]);
         // Dispatch update to Redux
         dispatch(clearCart());
+        toast.success('Cart cleared'); // <-- Use toast
       }
     } catch (err) {
       console.error('Error clearing cart:', err);
-      alert('Failed to clear cart');
+      toast.error('Failed to clear cart'); // <-- Use toast
     }
   };
 
